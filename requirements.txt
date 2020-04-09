@@ -4,3 +4,4 @@ jupyter
 pandas
 vega
 altair
+requests
