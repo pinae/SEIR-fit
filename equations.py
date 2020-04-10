@@ -19,34 +19,34 @@ class SEIR:
         self.n = sum(self.p0)
         self.intervention_times = intervention_times
 
-    def dS(self, t, susectible, infectious, r_list):
+    def dS(self, t, susceptible, infectious, r_list):
         r = r_list[0]
         for i, intervention_time in enumerate(self.intervention_times):
             if t >= intervention_time:
                 r = r_list[i + 1]
-        return -1 * susectible / self.n * (r / self.t_inf * infectious)
+        return -1 * susceptible / self.n * (r / self.t_inf * infectious)
 
-    def dE(self, t, susectible, exposed, infectious, r_list):
+    def dE(self, t, susceptible, exposed, infectious, r_list):
         r = r_list[0]
         for i, intervention_time in enumerate(self.intervention_times):
             if t >= intervention_time:
                 r = r_list[i + 1]
-        return susectible / self.n * (r / self.t_inf * infectious) - exposed / self.t_inc
+        return susceptible / self.n * (r / self.t_inf * infectious) - exposed / self.t_inc
 
     def dI(self, exposed, infectious):
         return exposed / self.t_inc - infectious / self.t_inf
 
-    def dR(self, susectible, exposed, infectious):
+    def dR(self, infectious):
         return infectious / self.t_inf
 
     def system(self, y, t, r_list=None):
-        susectible, exposed, infectious, removed = y
+        susceptible, exposed, infectious, removed = y
         if r_list is None:
             r_list = [self.r_0]*len(self.intervention_times)
-        return [self.dS(t, susectible, infectious, r_list),
-                self.dE(t, susectible, exposed, infectious, r_list),
+        return [self.dS(t, susceptible, infectious, r_list),
+                self.dE(t, susceptible, exposed, infectious, r_list),
                 self.dI(exposed, infectious),
-                self.dR(susectible, exposed, infectious)]
+                self.dR(infectious)]
 
     def __call__(self, t, r0, r1, r2, e0):
         return np.sum(self.getSEIR(t, [r0, r1, r2, r1, r0], e0)[:, 1:], axis=1)
