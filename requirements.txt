@@ -4,4 +4,5 @@ jupyter
 pandas
 vega
 altair
+altair_saver
 requests
