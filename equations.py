@@ -8,30 +8,31 @@ class SEIR:
                  incubation_period=5.2,
                  infective_period=2.9,
                  basic_reproduction_rate=3.4,
-                 intervention_times=[23, 30, 60, 230, 330],
+                 intervention_times=(23, 30, 60, 230, 330),
                  p0=(83019212., 0., 1., 0.),
-                 t_vals=np.arange(0., 365., 1.0)):
+                 t_vals=np.arange(0., 365., 1.)):
         self.t_inf = infective_period
         self.t_inc = incubation_period
-        self.r_0 = basic_reproduction_rate
+        self.r0 = basic_reproduction_rate
         self.t_vals = t_vals
-        self.p0 = p0
+        self.p0 = tuple(p0)
         self.n = sum(self.p0)
         self.intervention_times = intervention_times
 
-    def dS(self, t, susceptible, infectious, r_list):
-        r = r_list[0]
+    def get_current_r(self, t, r_list):
+        current_r = r_list[0]
         for i, intervention_time in enumerate(self.intervention_times):
             if t >= intervention_time:
-                r = r_list[i + 1]
-        return -1 * susceptible / self.n * (r / self.t_inf * infectious)
+                current_r = r_list[i + 1]
+        return current_r
+
+    def dS(self, t, susceptible, infectious, r_list):
+        current_r = self.get_current_r(t, r_list)
+        return -1 * susceptible / self.n * (current_r / self.t_inf * infectious)
 
     def dE(self, t, susceptible, exposed, infectious, r_list):
-        r = r_list[0]
-        for i, intervention_time in enumerate(self.intervention_times):
-            if t >= intervention_time:
-                r = r_list[i + 1]
-        return susceptible / self.n * (r / self.t_inf * infectious) - exposed / self.t_inc
+        current_r = self.get_current_r(t, r_list)
+        return (susceptible / self.n) * (current_r / self.t_inf * infectious) - exposed / self.t_inc
 
     def dI(self, exposed, infectious):
         return exposed / self.t_inc - infectious / self.t_inf
@@ -42,7 +43,7 @@ class SEIR:
     def system(self, y, t, r_list=None):
         susceptible, exposed, infectious, removed = y
         if r_list is None:
-            r_list = [self.r_0]*len(self.intervention_times)
+            r_list = [self.r0] * len(self.intervention_times)
         return [self.dS(t, susceptible, infectious, r_list),
                 self.dE(t, susceptible, exposed, infectious, r_list),
                 self.dI(exposed, infectious),
