@@ -11,11 +11,25 @@ class SEIR:
                  intervention_times=(23, 30, 60, 230, 330),
                  p0=(83019212., 0., 1., 0.),
                 ):
+        if infective_period <= 0.:
+            raise Exception("infective_period must be larger than 0")
         self.t_inf = infective_period
+
+        if incubation_period <= 0.:
+            raise Exception("incubation_period must be larger than 0")
         self.t_inc = incubation_period
+
+        if incubation_period < 0.:
+            raise Exception("incubation_period must 0 or larger")
         self.r0 = basic_reproduction_rate
+
         self.p0 = tuple(p0)
+        if len(self.p0) != 4:
+            raise Exception("p0 must contain 4 values")
         self.n = sum(self.p0)
+
+        if not np.all(intervention_times[1:] >= intervention_times[:-1]):
+            raise Exception("intervention_times[] must be monotonically increasing")
         self.intervention_times = intervention_times
 
     def get_current_r(self, t, r_list):
