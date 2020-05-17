@@ -10,11 +10,10 @@ class SEIR:
                  basic_reproduction_rate=3.4,
                  intervention_times=(23, 30, 60, 230, 330),
                  p0=(83019212., 0., 1., 0.),
-                 t_vals=np.arange(0., 365., 1.)):
+                ):
         self.t_inf = infective_period
         self.t_inc = incubation_period
         self.r0 = basic_reproduction_rate
-        self.t_vals = t_vals
         self.p0 = tuple(p0)
         self.n = sum(self.p0)
         self.intervention_times = intervention_times
@@ -64,6 +63,6 @@ if __name__ == "__main__":
     r = 3.
     e0 = 0.
     p = [bev_de - 1, e0, 1., 0.]
-    model = SEIR(p0=p, t_vals=times)
+    model = SEIR(p0=p)
     for p in model.getSEIR(times, [r, r, r, r, r], e0):
         print("{0:09.0f}\t{1:09.0f}\t{2:09.0f}\t{3:09.0f}".format(*p))
