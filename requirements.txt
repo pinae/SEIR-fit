@@ -6,3 +6,5 @@ vega
 altair
 altair_saver
 requests
+
+Note: altair_saver requires chromedriver or geckodriver installation to allow to save SVG or PNG.
