@@ -81,6 +81,6 @@ if __name__ == "__main__":
     r = 3.
     e0 = 0.
     p = [bev_de - 1, e0, 1., 0.]
-    model = SEIR(p0=p)
-    for p in model.getSEIR(times, [r, r, r, r, r], e0):
+    model = SEIR(p0=p, basic_reproduction_rate=r)
+    for p in model.getSEIR(times, None, e0):
         print("{0:09.0f}\t{1:09.0f}\t{2:09.0f}\t{3:09.0f}".format(*p))
