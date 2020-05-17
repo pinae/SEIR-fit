@@ -57,6 +57,10 @@ class SEIR:
         susceptible, exposed, infectious, removed = y
         if r_list is None:
             r_list = [self.r0] * len(self.intervention_times)
+
+        if len(r_list) < 1 or (len(r_list) <= len(self.intervention_times) and t >= self.intervention_times[len(r_list) - 1]):
+           raise Exception("provided r_list[] insufficient to calculate R0(t) at t = {:f}".format(t))
+
         return [self.dS(t, susceptible, infectious, r_list),
                 self.dE(t, susceptible, exposed, infectious, r_list),
                 self.dI(exposed, infectious),
