@@ -70,8 +70,9 @@ class SEIR:
         return np.sum(self.getSEIR(t, [r0, r1, r2, r3, r1, r0], e0)[:, 1:], axis=1)
 
     def getSEIR(self, t, r_list, e0):
-        S0, E0, I0, R0 = self.p0
-        p0 = (self.n - E0 - I0 - E0, e0, I0, R0)
+        # unused: S0 E0
+        _, _, I0, R0 = self.p0
+        p0 = (self.n - e0 - I0 - R0, e0, I0, R0)
         return odeint(self.system, y0=p0, t=t, args=(r_list,))
 
 
