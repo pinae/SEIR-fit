@@ -10,13 +10,26 @@ class SEIR:
                  basic_reproduction_rate=3.4,
                  intervention_times=(23, 30, 60, 230, 330),
                  p0=(83019212., 0., 1., 0.),
-                 t_vals=np.arange(0., 365., 1.)):
+                ):
+        if infective_period <= 0.:
+            raise Exception("infective_period must be larger than 0")
         self.t_inf = infective_period
+
+        if incubation_period <= 0.:
+            raise Exception("incubation_period must be larger than 0")
         self.t_inc = incubation_period
+
+        if incubation_period < 0.:
+            raise Exception("incubation_period must 0 or larger")
         self.r0 = basic_reproduction_rate
-        self.t_vals = t_vals
+
         self.p0 = tuple(p0)
+        if len(self.p0) != 4:
+            raise Exception("p0 must contain 4 values")
         self.n = sum(self.p0)
+
+        if not np.all(intervention_times[1:] >= intervention_times[:-1]):
+            raise Exception("intervention_times[] must be monotonically increasing")
         self.intervention_times = intervention_times
 
     def get_current_r(self, t, r_list):
@@ -43,7 +56,11 @@ class SEIR:
     def system(self, y, t, r_list=None):
         susceptible, exposed, infectious, removed = y
         if r_list is None:
-            r_list = [self.r0] * len(self.intervention_times)
+            r_list = [self.r0] * (len(self.intervention_times) + 1)
+
+        if len(r_list) < 1 or (len(r_list) <= len(self.intervention_times) and t >= self.intervention_times[len(r_list) - 1]):
+           raise Exception("provided r_list[] insufficient to calculate R0(t) at t = {:f}".format(t))
+
         return [self.dS(t, susceptible, infectious, r_list),
                 self.dE(t, susceptible, exposed, infectious, r_list),
                 self.dI(exposed, infectious),
@@ -53,8 +70,9 @@ class SEIR:
         return np.sum(self.getSEIR(t, [r0, r1, r2, r3, r1, r0], e0)[:, 1:], axis=1)
 
     def getSEIR(self, t, r_list, e0):
-        S0, E0, I0, R0 = self.p0
-        p0 = (self.n - E0 - I0 - E0, e0, I0, R0)
+        # unused: S0 E0
+        _, _, I0, R0 = self.p0
+        p0 = (self.n - e0 - I0 - R0, e0, I0, R0)
         return odeint(self.system, y0=p0, t=t, args=(r_list,))
 
 
@@ -64,6 +82,6 @@ if __name__ == "__main__":
     r = 3.
     e0 = 0.
     p = [bev_de - 1, e0, 1., 0.]
-    model = SEIR(p0=p, t_vals=times)
-    for p in model.getSEIR(times, [r, r, r, r, r], e0):
+    model = SEIR(p0=p, basic_reproduction_rate=r)
+    for p in model.getSEIR(times, None, e0):
         print("{0:09.0f}\t{1:09.0f}\t{2:09.0f}\t{3:09.0f}".format(*p))
