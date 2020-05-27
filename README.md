@@ -1,6 +1,9 @@
 # SEIR-fit
 Fit a SEIR model to real data
 
+You can try this without installation in an interactive Jupyter Notebook on: 
+https://mybinder.org/v2/gh/pinae/SEIR-fit/master?filepath=SEIR-Plots.ipynb
+
 # Setup
 
 ```sh
